@@ -76,12 +76,7 @@ export const Sidebar = () => {
           { to: "/alerts", icon: ShieldAlert, label: "Alerts" },
         ];
       case "employee":
-        return [
-          {
-            to: "/employee-dashboard",
-            icon: LayoutDashboard,
-            label: "Dashboard",
-          },
+        const items = [
           { to: "/hazards", icon: AlertTriangle, label: "Report Hazard" },
           { to: "/alerts", icon: ShieldAlert, label: "Alerts" },
           { to: "/notifications", icon: Bell, label: "Notifications" },
@@ -93,6 +88,14 @@ export const Sidebar = () => {
           },
           { to: "/training", icon: GraduationCap, label: "Training" },
         ];
+        if (user?.approved) {
+          items.unshift({
+            to: "/employee-dashboard",
+            icon: LayoutDashboard,
+            label: "Dashboard",
+          });
+        }
+        return items;
       default:
         return [];
     }

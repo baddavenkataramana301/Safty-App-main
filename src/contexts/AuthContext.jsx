@@ -35,6 +35,21 @@ export const AuthProvider = ({ children }) => {
     if (storedTheme) {
       setTheme(JSON.parse(storedTheme));
     }
+
+    // Listen for usersUpdated event to refresh user state
+    const handleUsersUpdated = () => {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        const userData = JSON.parse(storedUser);
+        setUser(userData);
+      }
+    };
+
+    window.addEventListener('usersUpdated', handleUsersUpdated);
+
+    return () => {
+      window.removeEventListener('usersUpdated', handleUsersUpdated);
+    };
   }, []);
 
   const redirectToDashboard = (role) => {
@@ -67,10 +82,6 @@ export const AuthProvider = ({ children }) => {
       throw new Error("User not found");
     }
 
-    if (!foundUser.approved) {
-      throw new Error("Account not approved. Please contact your administrator.");
-    }
-
     // Normalize role to match routing
     const normalizedRole = foundUser.role.toLowerCase().replace(" ", "_");
 
@@ -87,7 +98,12 @@ export const AuthProvider = ({ children }) => {
     setUser(userData);
     localStorage.setItem("user", JSON.stringify(userData));
 
-    redirectToDashboard(normalizedRole);
+    // If employee and not approved, redirect to home
+    if (normalizedRole === "employee" && !foundUser.approved) {
+      navigate("/home");
+    } else {
+      redirectToDashboard(normalizedRole);
+    }
   };
 
   const register = async (userData) => {
@@ -110,7 +126,7 @@ export const AuthProvider = ({ children }) => {
       role: displayRole,
       status: "Active",
       department: userData.department || "",
-      approved: true, // Auto-approve all registered users
+      approved: displayRole !== "Employee", // Auto-approve non-employees, employees need approval
     };
 
     // Ensure dummyUsers is initialized in localStorage

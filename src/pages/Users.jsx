@@ -187,6 +187,15 @@ const Users = () => {
     );
     setUsers(updatedUsers);
     localStorage.setItem("dummyUsers", JSON.stringify(updatedUsers));
+    console.log("Updated dummyUsers in localStorage:", updatedUsers);
+
+    // Update the current user's localStorage if they are the one being approved
+    if (loggedInUser && loggedInUser.id === id) {
+      const updatedCurrentUser = { ...loggedInUser, approved: true };
+      localStorage.setItem("user", JSON.stringify(updatedCurrentUser));
+      console.log("Updated current user in localStorage:", updatedCurrentUser);
+    }
+
     toast.success("Employee approved successfully");
   };
 
